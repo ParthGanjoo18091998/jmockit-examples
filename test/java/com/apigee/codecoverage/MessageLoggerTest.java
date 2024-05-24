@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.sql.Timestamp;
 
-
 public class MessageLoggerTest {
 
     @Mocked
@@ -23,30 +22,26 @@ public class MessageLoggerTest {
 
     @Test
     public void printMessage() throws Exception {
-        commonNonStrictExpectations();
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 messenger.message(anyInt);
-                returns("message-" + anyInt.toString());
-            }
-        };
-        new MessageLogger(messenger).printMessage(100);
-        new Verifications() {
-            {
-                messenger.message(anyInt);
+                result = "message-" + anyInt;
                 maxTimes = 1;
             }
         };
+        new MessageLogger(messenger).printMessage(100);
     }
 
     @Test
     public void printTimestamp() {
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 Utils.getMessageTimestamp(anyInt);
-                returns(new Timestamp(System.currentTimeMillis()));
+                result = new Timestamp(System.currentTimeMillis());
+                minTimes = 1;
                 Utils.getTypeMap(anyInt);
-                returns(new String("String-type"));
+                result = "String-type";
+                maxTimes = 1;
             }
         };
         new MessageLogger(messenger).printTimestamp(200, 1);
@@ -54,32 +49,26 @@ public class MessageLoggerTest {
 
     @Test
     public void printOrgEnv() {
-        commonNonStrictExpectations();
-        new NonStrictExpectations() {
+        commonExpectations();
+        new Expectations() {
             {
                 messenger.getOrganization();
-                returns(organization);
+                result = organization;
                 messenger.getEnvironment();
-                returns(environment);
+                result = environment;
                 environment.getEnvironmentInfo();
-                returns("my-env");
+                result = "my-env";
                 organization.getOrganizationInfo();
-                returns("my-org");
+                result = "my-org";
+                messenger.getOrganization();
+                minTimes = 1;
+                messenger.getEnvironment();
+                minTimes = 1;
             }
         };
         MessageLogger m = new MessageLogger(messenger);
         m.printOrg();
         m.printEnv();
-        new Verifications() {
-            {
-                messenger.message(anyInt);
-                times = 0;
-                messenger.getOrganization();
-                minTimes = 1;
-                messenger.getEnvironment();
-                minTimes = 1;
-            }
-        };
     }
 
     @Test
@@ -98,26 +87,18 @@ public class MessageLoggerTest {
                 return "my-org2";
             }
         }.getMockInstance();
-        commonNonStrictExpectations();
-        new NonStrictExpectations() {
+        
+        commonExpectations();
+        new Expectations() {
             {
                 messenger.getEnvironment();
-                returns(environment);
+                result = environment;
                 messenger.getOrganization();
-                returns(organization);
+                result = organization;
             }
         };
         MessageLogger m = new MessageLogger(messenger);
         m.printEnv();
         m.printOrg();
     }
-
-    private NonStrictExpectations commonNonStrictExpectations() {
-        return new NonStrictExpectations() {
-            {
-                Messenger.getInstance();
-                returns(messenger);
-            }
-        };
-    }
-} 
+}

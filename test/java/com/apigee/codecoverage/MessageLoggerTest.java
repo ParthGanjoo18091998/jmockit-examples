@@ -87,8 +87,6 @@ public class MessageLoggerTest {
                 return "my-org2";
             }
         }.getMockInstance();
-        
-        commonExpectations();
         new Expectations() {
             {
                 messenger.getEnvironment();

@@ -54,6 +54,7 @@ public class MessageLoggerTest {
 
     @Test
     public void printOrgEnv() {
+        // Hi
         commonNonStrictExpectations();
         new NonStrictExpectations() {
             {
